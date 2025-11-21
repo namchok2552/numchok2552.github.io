@@ -2,64 +2,118 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>เกมตอบคำถามกฎหมาย 40 ข้อ</title>
+<title>Snake Game</title>
 <style>
-  body {
-    font-family: "Sarabun", sans-serif;
-    margin: 20px;
-    background: #f9f9f9;
-  }
-  h1 {
-    text-align: center;
-    color: #2c3e50;
-  }
-  #quiz-container {
-    max-width: 700px;
-    margin: 0 auto;
-    background: white;
-    padding: 20px 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  }
-  #question-number {
-    font-weight: bold;
-    margin-bottom: 10px;
-    color: #34495e;
-  }
-  #question-text {
-    font-size: 1.2em;
-    margin-bottom: 20px;
-    color: #34495e;
-  }
-  .choice {
-    margin-bottom: 12px;
-  }
-  .choice label {
-    cursor: pointer;
-  }
-  button {
-    background: #2980b9;
-    color: white;
-    border: none;
-    padding: 10px 18px;
-    margin: 10px 5px 0 5px;
-    border-radius: 4px;
-    font-size: 1em;
-    cursor: pointer;
-  }
-  button:disabled {
-    background: #bdc3c7;
-    cursor: not-allowed;
-  }
-  #feedback {
-    margin-top: 20px;
-    padding: 15px;
-    border-radius: 6px;
-    background: #ecf0f1;
-    font-size: 1em;
-    color: #2c3e50;
-  }
+    body {
+        background: #111;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        font-family: sans-serif;
+    }
+
+    canvas {
+        background: #222;
+        border: 3px solid #4caf50;
+    }
+
+    #score {
+        position: absolute;
+        top: 20px;
+        color: white;
+        font-size: 24px;
+    }
+</style>
+</head>
+<body>
+
+<div id="score">คะแนน: 0</div>
+<canvas id="game" width="400" height="400"></canvas>
+
+<script>
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+
+    const box = 20;
+    let snake = [{ x: 9 * box, y: 10 * box }];
+    let direction = "RIGHT";
+
+    let food = {
+        x: Math.floor(Math.random() * 20) * box,
+        y: Math.floor(Math.random() * 20) * box,
+    };
+
+    let score = 0;
+    const scoreText = document.getElementById("score");
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
+        if (event.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
+        if (event.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
+        if (event.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
+    });
+
+    function drawGame() {
+        ctx.fillStyle = "#222";
+        ctx.fillRect(0, 0, 400, 400);
+
+        // food
+        ctx.fillStyle = "red";
+        ctx.fillRect(food.x, food.y, box, box);
+
+        // snake
+        ctx.fillStyle = "#4caf50";
+        for (let i = 0; i < snake.length; i++) {
+            ctx.fillRect(snake[i].x, snake[i].y, box, box);
+        }
+
+        // old head
+        let snakeX = snake[0].x;
+        let snakeY = snake[0].y;
+
+        if (direction === "LEFT") snakeX -= box;
+        if (direction === "UP") snakeY -= box;
+        if (direction === "RIGHT") snakeX += box;
+        if (direction === "DOWN") snakeY += box;
+
+        // การชนขอบ
+        if (snakeX < 0 || snakeX >= 400 || snakeY < 0 || snakeY >= 400) {
+            alert("จบเกม! คะแนน: " + score);
+            location.reload();
+            return;
+        }
+
+        // การชนตัวเอง
+        for (let i = 1; i < snake.length; i++) {
+            if (snakeX === snake[i].x && snakeY === snake[i].y) {
+                alert("จบเกม! คะแนน: " + score);
+                location.reload();
+                return;
+            }
+        }
+
+        // กินอาหาร
+        if (snakeX === food.x && snakeY === food.y) {
+            score++;
+            scoreText.textContent = "คะแนน: " + score;
+
+            food = {
+                x: Math.floor(Math.random() * 20) * box,
+                y: Math.floor(Math.random() * 20) * box,
+            };
+        } else {
+            snake.pop();
+        }
+
+        snake.unshift({ x: snakeX, y: snakeY });
+    }
+
+    setInterval(drawGame, 120);
+</script>
+</body>
+</html>
   #feedback.correct {
     border-left: 6px solid #27ae60;
     background: #dff0d8;
